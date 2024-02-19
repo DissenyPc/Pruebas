@@ -1,0 +1,55 @@
+function checkCashRegister(price, cash, cid) {
+  let cambio = Number((cash - price).toFixed(2));
+  let salida = [], change = [], cuantas = 0, status = "";
+  let monedas = [
+    ["PENNY", 0.01] ,
+    ["NICKEL", 0.05],
+    ["DIME", 0.1],
+    ["QUARTER", 0.25],
+    ["ONE", 1],
+    ["FIVE", 5],
+    ["TEN", 10],
+    ["TWENTY", 20],
+    ["ONE HUNDRED", 100],
+  ];
+  
+  for ( let i = 0; i < monedas.length; i++) {
+    monedas[i].push(cid[i][1]);
+    monedas[i].push(Math.round(cid[i][1] /monedas[i][1]));
+  }//for i 
+  let restoMoneda = 0;
+  for ( let i = 8; i >= 0 && cambio > 0; i-- ) { 
+    if ( monedas[i][1] <= cambio && monedas[i][2] > 0) {
+      cuantas = Math.trunc(cambio / monedas[i][1]);
+      if ( cuantas * monedas[i][1] >= monedas[i][2] ) { cuantas = monedas[i][3]}
+      cambio = Number(cambio - (monedas[i][1] * cuantas)).toFixed(2);
+      change.push([monedas[i][0], monedas[i][1] * cuantas])
+      monedas[i][3] = monedas[i][3] - cuantas;
+       monedas[i][2] = monedas[i][3] * monedas[i][2]
+      console.log(monedas[i][3], monedas[i][2])
+      cuantas = 0; 
+    } //else {change.push([monedas[i][0], monedas[i][1] * cuantas]) }
+  }
+  if ( cambio != 0) { 
+    change = [];
+    status = "INSUFFICIENT_FUNDS";
+    salida = [["status", status],["change", change]]
+    return Object.fromEntries(salida);
+  }
+  let suma = 0;
+  for ( let i = 0; i <= 8; i++){
+    suma = suma + monedas[i][2];
+  } console.log("suma =", suma)
+  if (suma ===  0) {
+    status = "CLOSED";
+    for ( let i = 1; i <= 8; i++) {
+      change.push([cid[i][0], cid[i][1]]);
+    }
+    salida = [["status", status],["change", change]]
+    return Object.fromEntries(salida);
+  } else { status = "OPEN"}
+    salida = [["status", status],["change", change]];
+  return Object.fromEntries(salida);
+}
+
+console.log(checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]));
